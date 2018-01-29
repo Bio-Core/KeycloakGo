@@ -3,7 +3,7 @@ Plugin to add [Keycloak](http://www.keycloak.org/) for authentication to GOLANG 
 
 ## Installation
 ```
-go get github.com/mitch-strong/keycloakgo
+go get github.com/Bio-core/keycloakgo
 go install
 ```
 
