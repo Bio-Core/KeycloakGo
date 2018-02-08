@@ -136,6 +136,9 @@ func AuthMiddlewareHandler(next http.Handler) http.Handler {
 		}
 		//Go to redirect if token is still valid
 		logAction(username, actionPageAccess, r.RequestURI)
+		if r.RequestURI == "/Jtree/metadata/0.1.0/logout" {
+			Logout(w, r)
+		}
 		next.ServeHTTP(w, r)
 
 	})
@@ -169,6 +172,35 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	//Logout using endpoint and redirect to login page
 	http.Redirect(w, r, keycloakserver+"/auth/realms/"+realm+"/protocol/openid-connect/logout?redirect_uri="+URI, http.StatusTemporaryRedirect)
 
+}
+
+//LogoutUser logs the user out
+func LogoutUser() bool {
+	client := &http.Client{}
+	url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
+	req, _ := http.NewRequest("GET", url, nil)
+	if token == nil {
+		return false
+	}
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	//Check if token is still valid
+	response, err := client.Do(req)
+	if response.Status == "200 OK" && err == nil {
+		body, _ := ioutil.ReadAll(response.Body)
+		var f interface{}
+		json.Unmarshal(body, &f)
+		m := f.(map[string]interface{})
+		username := m["preferred_username"].(string)
+		//Go to redirect if token is still valid
+		logAction(username, actionLogout, "")
+	}
+	url = keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/logout"
+	req, _ = http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	response, _ = client.Do(req)
+	fmt.Printf(token.AccessToken)
+	//Logout using endpoint and redirect to login page
+	return true
 }
 
 func getToken(state, code string) bool {
