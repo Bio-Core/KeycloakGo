@@ -25,7 +25,7 @@ var verifier *oidc.IDTokenVerifier //verifier
 
 //Init begins keycloak server
 func Init(keycloakServer, Server string) {
-	userLog = GetInstance()
+	userLog = getInstance()
 	getKeycloakJSON()
 	keycloakserver = keycloakServer
 	server = Server
@@ -41,7 +41,7 @@ func Init(keycloakServer, Server string) {
 	oauth2Config = oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  server + "/loginCallback",
+		RedirectURL:  "http://127.0.0.1:8000/Jtree/metadata/0.1.0/sample/search",
 
 		// Discovery returns the OAuth2 endpoints.
 		Endpoint: provider.Endpoint(),

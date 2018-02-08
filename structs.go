@@ -21,10 +21,14 @@ const (
 	actionInvalid
 )
 
+//Action is a type of possible user actions
 type Action string
 
 var (
-	ActionLogin      Action = "Login"
-	ActionLogout     Action = "Logout"
+	//ActionLogin is for user logins
+	ActionLogin Action = "Login"
+	//ActionLogout is for user logouts
+	ActionLogout Action = "Logout"
+	//ActionPageAccess is for any user page access
 	ActionPageAccess Action = "Access"
 )

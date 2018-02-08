@@ -1,7 +1,6 @@
 package keycloak
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -19,9 +18,9 @@ var file *os.File
 var fileStat os.FileInfo
 
 //GetInstance returns a new logger to a file
-func GetInstance() *logger {
+func getInstance() *logger {
 	once.Do(func() {
-		logs = createLogger("./logs/UserLogs.log")
+		logs = createLogger("./log/UserLogs.log")
 	})
 	return logs
 }
@@ -41,16 +40,8 @@ func logAction(username string, a action, additional string) {
 		event := getAction(a)
 		userLog.Println(username+": ", event, " ", additional)
 	} else {
-		GetInstance()
+		getInstance()
 	}
-	a1 := fileStat.Name()
-	a2 := fileStat.Sys()
-	a3 := fileStat.Size()
-	b1 := info.Name()
-	b2 := info.Sys()
-	b3 := info.Size()
-	same := os.SameFile(fileStat, info)
-	fmt.Printf(a1, a2, a3, b1, b2, b3, same)
 }
 
 func getAction(a action) Action {
