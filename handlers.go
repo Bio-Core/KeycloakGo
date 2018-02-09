@@ -134,7 +134,7 @@ func AuthMiddlewareHandler(next http.Handler) http.Handler {
 		username := m["preferred_username"].(string)
 		if login {
 			loginLog(username)
-			http.Redirect(w, r, "/Jtree/metadata/0.1.0/sample/search", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/Jtree/metadata/0.1.0/columns", http.StatusTemporaryRedirect)
 		} else {
 			//Go to redirect if token is still valid
 			logAction(username, actionPageAccess, r.RequestURI)
@@ -155,7 +155,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
 	req, _ := http.NewRequest("GET", url, nil)
 	if token == nil {
-		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		HandleLogin(w, r)
 		return
 	}
 	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
