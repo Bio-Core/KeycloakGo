@@ -135,12 +135,14 @@ func AuthMiddlewareHandler(next http.Handler) http.Handler {
 		if login {
 			loginLog(username)
 			http.Redirect(w, r, "/Jtree/metadata/0.1.0/columns", http.StatusTemporaryRedirect)
+			return
 		} else {
 			//Go to redirect if token is still valid
 			logAction(username, actionPageAccess, r.RequestURI)
 		}
 		if r.RequestURI == "/Jtree/metadata/0.1.0/logout" {
 			Logout(w, r)
+			return
 		}
 		next.ServeHTTP(w, r)
 
