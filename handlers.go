@@ -63,7 +63,8 @@ func HandleLoginCallback(w http.ResponseWriter, r *http.Request) {
 		m := f.(map[string]interface{})
 		username := m["preferred_username"].(string)
 		//forwards to index if login sucessful
-		logAction(username, actionLogin, emptyString)
+		fmt.Printf(username, actionLogin, emptyString)
+		//logaction(username, actionLogin, emptyString)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 	}
 	return
@@ -93,7 +94,8 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			m := f.(map[string]interface{})
 			username := m["preferred_username"].(string)
 			//Go to redirect if token is still valid
-			logAction(username, actionPageAccess, r.RequestURI)
+			fmt.Printf(username, actionPageAccess, r.RequestURI)
+			//logAction(username, actionPageAccess, r.RequestURI)
 			next.ServeHTTP(w, r)
 		}
 	})
@@ -133,8 +135,11 @@ func AuthMiddlewareHandler(next http.Handler) http.Handler {
 		m := f.(map[string]interface{})
 		username := m["preferred_username"].(string)
 		if login {
-			loginLog(username)
-			http.Redirect(w, r, "/Jtree/metadata/0.1.0/columns", http.StatusTemporaryRedirect)
+			fmt.Printf(username)
+			//loginLog(username)
+			login = false
+			//http.Redirect(w, r, "/Jtree/metadata/0.1.0/columns", http.StatusTemporaryRedirect)
+			next.ServeHTTP(w, r)
 			return
 		}
 		if r.RequestURI == "/Jtree/metadata/0.1.0/logout" {
@@ -142,7 +147,7 @@ func AuthMiddlewareHandler(next http.Handler) http.Handler {
 			return
 		}
 		//Go to redirect if token is still valid
-		logAction(username, actionPageAccess, r.RequestURI)
+		//logAction(username, actionPageAccess, r.RequestURI)
 		next.ServeHTTP(w, r)
 
 	})
@@ -169,12 +174,13 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		m := f.(map[string]interface{})
 		username := m["preferred_username"].(string)
 		//Go to redirect if token is still valid
-		logAction(username, actionLogout, emptyString)
+		fmt.Printf(username, actionLogout, emptyString)
+		//logAction(username, actionLogout, emptyString)
 	}
 	//Makes the logout page redirect to login page
 	URI := server + "/login"
 	//Logout using endpoint and redirect to login page
-	http.Redirect(w, r, keycloakserver+"/auth/realms/"+realm+"/protocol/openid-connect/logout?redirect_uri="+URI, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, keycloakserver+"/auth/realms/"+realm+"/protocol/openid-connect/logout?redirect_uri=http://"+URI, http.StatusTemporaryRedirect)
 
 }
 
@@ -197,6 +203,6 @@ func getToken(state, code string) bool {
 }
 
 func loginLog(username string) {
-	logAction(username, actionLogin, emptyString)
+	//logAction(username, actionLogin, emptyString)
 	login = false
 }

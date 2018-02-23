@@ -41,7 +41,7 @@ func Init(keycloakServer, Server string) {
 	oauth2Config = oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  "http://127.0.0.1:8000/Jtree/metadata/0.1.0/sample/search",
+		RedirectURL:  "http://127.0.0.1:8000/Jtree/metadata/0.1.0/columns",
 
 		// Discovery returns the OAuth2 endpoints.
 		Endpoint: provider.Endpoint(),
