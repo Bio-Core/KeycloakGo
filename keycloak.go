@@ -22,9 +22,13 @@ var err error                      //generic error object
 var keycloakserver string          //keycloak server string passed from app
 var server string                  //app server string passed from app
 var verifier *oidc.IDTokenVerifier //verifier
+var mainstring string
+var logoutstring string
 
 //Init begins keycloak server
-func Init(keycloakServer, Server string) {
+func Init(keycloakServer, Server, main string, logout string) {
+	mainstring = main
+	logoutstring = logout
 	userLog = getInstance()
 	getKeycloakJSON()
 	keycloakserver = keycloakServer
@@ -41,7 +45,7 @@ func Init(keycloakServer, Server string) {
 	oauth2Config = oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  "http://127.0.0.1:8000/Jtree/metadata/0.1.0/sample/search",
+		RedirectURL:  server + main,
 
 		// Discovery returns the OAuth2 endpoints.
 		Endpoint: provider.Endpoint(),
