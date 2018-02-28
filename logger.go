@@ -1,7 +1,10 @@
 package keycloak
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"sync"
 )
@@ -34,26 +37,43 @@ func createLogger(fname string) *logger {
 	}
 }
 
-func logAction(username string, a action, additional string) {
+func logAction(username string, a Action, additional string) {
 	info, _ := file.Stat()
 	if info.Name() == fileStat.Name() {
-		event := getAction(a)
-		userLog.Println(username+": ", event, " ", additional)
+		userLog.Println(username+": ", a, " ", additional)
 	} else {
 		getInstance()
 	}
 }
 
-func getAction(a action) Action {
-	switch a {
-	case actionLogin:
-		return ActionLogin
-
-	case actionLogout:
-		return ActionLogout
-
-	case actionPageAccess:
-		return ActionPageAccess
+//LogAction is an external call for logging actions
+func LogAction(a Action, additional string) {
+	username := getUsername()
+	info, _ := file.Stat()
+	if info.Name() == fileStat.Name() {
+		userLog.Println(username+": ", a, " ", additional)
+	} else {
+		getInstance()
 	}
-	return ""
+}
+
+func getUsername() string {
+	client := &http.Client{}
+	url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
+	req, _ := http.NewRequest("GET", url, nil)
+	if token == nil {
+		return ""
+	}
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	//Check if token is still valid
+	response, err := client.Do(req)
+	if err != nil || response.Status != "200 OK" {
+		return ""
+	}
+	body, _ := ioutil.ReadAll(response.Body)
+	var f interface{}
+	json.Unmarshal(body, &f)
+	m := f.(map[string]interface{})
+	username := m["preferred_username"].(string)
+	return username
 }

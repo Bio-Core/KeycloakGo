@@ -68,7 +68,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		//Go to redirect if token is still valid
-		logAction(username, actionPageAccess, r.RequestURI)
+		logAction(username, PageAccessAction, r.RequestURI)
 		next.ServeHTTP(w, r)
 
 	})
@@ -117,7 +117,7 @@ func AuthMiddlewareHandler(next http.Handler) http.Handler {
 			return
 		}
 		//Go to redirect if token is still valid
-		logAction(username, actionPageAccess, r.RequestURI)
+		logAction(username, PageAccessAction, r.RequestURI)
 		next.ServeHTTP(w, r)
 
 	})
@@ -144,7 +144,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		m := f.(map[string]interface{})
 		username := m["preferred_username"].(string)
 		//Go to redirect if token is still valid
-		logAction(username, actionLogout, emptyString)
+		logAction(username, LogoutAction, emptyString)
 	}
 	//Makes the logout page redirect to login page
 	URI := server + mainstring
@@ -172,6 +172,6 @@ func getToken(state, code string) bool {
 }
 
 func loginLog(username string) {
-	logAction(username, actionLogin, emptyString)
+	logAction(username, LoginAction, emptyString)
 	login = false
 }

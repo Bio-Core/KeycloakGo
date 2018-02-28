@@ -12,23 +12,16 @@ type Creds struct {
 	Secret string `json:"secret"`
 }
 
-type action int
-
-const (
-	actionLogin action = iota
-	actionLogout
-	actionPageAccess
-	actionInvalid
-)
-
 //Action is a type of possible user actions
 type Action string
 
 var (
-	//ActionLogin is for user logins
-	ActionLogin Action = "Login"
-	//ActionLogout is for user logouts
-	ActionLogout Action = "Logout"
-	//ActionPageAccess is for any user page access
-	ActionPageAccess Action = "Access"
+	//LoginAction is for user logins
+	LoginAction Action = "Login"
+	//LogoutAction is for user logouts
+	LogoutAction Action = "Logout"
+	//PageAccessAction is for any user page access
+	PageAccessAction Action = "Access"
+	//UploadFileAction is for users uploading files via the system
+	UploadFileAction Action = "Upload File"
 )
