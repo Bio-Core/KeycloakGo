@@ -55,11 +55,11 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		body, _ := ioutil.ReadAll(response.Body)
 		var f interface{}
 		json.Unmarshal(body, &f)
-		// m := f.(map[string]interface{})
-		// username := m["preferred_username"].(string)
+		m := f.(map[string]interface{})
+		username := m["preferred_username"].(string)
 		if login {
-			login = false
-			//loginLog(username)
+			//login = false
+			loginLog(username)
 			http.Redirect(w, r, mainstring, http.StatusTemporaryRedirect)
 			return
 		}
@@ -68,7 +68,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		//Go to redirect if token is still valid
-		//logAction(username, actionPageAccess, r.RequestURI)
+		logAction(username, actionPageAccess, r.RequestURI)
 		next.ServeHTTP(w, r)
 
 	})
@@ -117,7 +117,7 @@ func AuthMiddlewareHandler(next http.Handler) http.Handler {
 			return
 		}
 		//Go to redirect if token is still valid
-		//logAction(username, actionPageAccess, r.RequestURI)
+		logAction(username, actionPageAccess, r.RequestURI)
 		next.ServeHTTP(w, r)
 
 	})
@@ -141,10 +141,10 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		body, _ := ioutil.ReadAll(response.Body)
 		var f interface{}
 		json.Unmarshal(body, &f)
-		//m := f.(map[string]interface{})
-		//username := m["preferred_username"].(string)
+		m := f.(map[string]interface{})
+		username := m["preferred_username"].(string)
 		//Go to redirect if token is still valid
-		//logAction(username, actionLogout, emptyString)
+		logAction(username, actionLogout, emptyString)
 	}
 	//Makes the logout page redirect to login page
 	URI := server + mainstring
