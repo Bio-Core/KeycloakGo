@@ -29,7 +29,9 @@ var logoutstring string
 func Init(keycloakServer, Server, main string, logout string) {
 	mainstring = main
 	logoutstring = logout
-	userLog = getInstance()
+	userLog = getInstance("UserLogs.log")
+	appLog = getInstance("AppLogs.log")
+
 	getKeycloakJSON()
 	keycloakserver = keycloakServer
 	server = Server
