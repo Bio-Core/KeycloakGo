@@ -2,6 +2,7 @@ package keycloak
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,20 +22,21 @@ var logs *logger
 var once sync.Once
 var file *os.File
 var fileStat os.FileInfo
-var files []os.FileInfo
+var files map[string]os.FileInfo
 
 //GetInstance returns a new logger to a file
 func getInstance(name string) *logger {
-	once.Do(func() {
-		logs = createLogger("./log/" + name)
-	})
+	logs = createLogger("./log/" + name)
 	return logs
 }
 
 func createLogger(fname string) *logger {
+	if files == nil {
+		files = make(map[string]os.FileInfo, 2)
+	}
 	file, _ = os.OpenFile(fname, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	fileStat, _ = file.Stat()
-	files = append(files, fileStat)
+	files[fname] = fileStat
 	return &logger{
 		filename: fname,
 		Logger:   log.New(file, "", log.Ldate|log.Ltime),
@@ -42,24 +44,23 @@ func createLogger(fname string) *logger {
 }
 
 func logAction(username string, a Action, additional string) {
-	info, _ := file.Stat()
-
-	if info.Name() == files[0].Name() {
-		userLog.Println(username+": ", a, " ", additional)
-	} else {
+	if files["./log/UserLogs.log"] == nil {
 		userLog = getInstance("UserLogs.log")
 	}
+	userLog.Println(username+": ", a, " ", additional)
 }
 
 //LogAction is an external call for logging actions into the file log
 func LogAction(a Action, additional string) {
 	username := GetUsername()
-	info, _ := file.Stat()
-	if info.Name() == files[1].Name() {
-		appLog.Println(username+": ", a, " ", additional)
-	} else {
+	email := GetEmail()
+	fmt.Printf("got username and gmail")
+	if files["./log/AppLogs.log"] == nil {
+		fmt.Printf("Found file not made")
 		appLog = getInstance("AppLogs.log")
+		fmt.Printf("Made file")
 	}
+	appLog.Println(username+";"+email+": ", a, " ", additional)
 }
 
 //GetUsername gets the current users username
