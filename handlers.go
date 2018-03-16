@@ -3,8 +3,10 @@ package keycloak
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"golang.org/x/oauth2"
 )
@@ -18,6 +20,11 @@ var login bool
 //HandleLogin is the keycloak login funtion
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	token = nil
+	cookie, err := r.Cookie("token")
+	if err == nil {
+		cookie.Expires = time.Now().AddDate(0, -1, 0)
+		http.SetCookie(w, cookie)
+	}
 	//create a random string for oath2 verification
 	oauthStateString = randSeq(20)
 	//Uses random gnerated string to verify keyclock security
@@ -30,20 +37,35 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//If running unit tests skip authentication (temp)
+		cookie, err := r.Cookie("token")
+		if err == nil {
+			pre := oauth2.Token{
+				AccessToken: cookie.Value,
+			}
+			token = &pre
+		}
+		cooks := r.Cookies()
+		fmt.Printf("%v", cooks)
 		client := &http.Client{}
 		url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
 		req, _ := http.NewRequest("GET", url, nil)
-		if token == nil {
-			if oauthStateString == "" {
-				HandleLogin(w, r)
-				return
-			}
+		if cookie == nil {
+			// if oauthStateString == "" {
+			// 	HandleLogin(w, r)
+			// 	return
+			// }
 			result := getToken(r.FormValue("state"), r.FormValue("code"))
 			if !result {
 				HandleLogin(w, r)
 				return
 			}
 		}
+		tokenCookie := http.Cookie{
+			Name:    "token",
+			Value:   token.AccessToken,
+			Expires: time.Now().Add(time.Hour),
+		}
+		http.SetCookie(w, &tokenCookie)
 		req.Header.Set("Authorization", "Bearer "+token.AccessToken)
 		//Check if token is still valid
 		response, err := client.Do(req)
