@@ -21,6 +21,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	token = nil
 	cookie, err := r.Cookie("token")
 	if err == nil {
+		//Set the cookie expiry date to yesterday so that the browser will expire it
 		cookie.Expires = time.Now().AddDate(0, -1, 0)
 		http.SetCookie(w, cookie)
 	}
@@ -94,6 +95,8 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	//return function for page handling
 	return handler
 }
+
+///THIS FUNCTION SHOULD REALLY NOT BE USED. THE OTHER IS PREFERRED
 
 //AuthMiddlewareHandler is a middlefuntion that verifies authentication before each redirect
 func AuthMiddlewareHandler(next http.Handler) http.Handler {
