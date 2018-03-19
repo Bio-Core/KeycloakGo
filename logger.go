@@ -51,9 +51,9 @@ func logAction(username string, a Action, additional string) {
 }
 
 //LogAction is an external call for logging actions into the file log
-func LogAction(a Action, additional string) {
-	username := GetUsername()
-	email := GetEmail()
+func LogAction(a Action, additional, tokenString string) {
+	username := GetUsername(tokenString)
+	email := GetEmail(tokenString)
 	fmt.Printf("got username and gmail")
 	if files["./log/AppLogs.log"] == nil {
 		fmt.Printf("Found file not made")
@@ -64,14 +64,11 @@ func LogAction(a Action, additional string) {
 }
 
 //GetUsername gets the current users username
-func GetUsername() string {
+func GetUsername(tokenString string) string {
 	client := &http.Client{}
 	url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
 	req, _ := http.NewRequest("GET", url, nil)
-	if token == nil {
-		return ""
-	}
-	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+tokenString)
 	//Check if token is still valid
 	response, err := client.Do(req)
 	if err != nil || response.Status != "200 OK" {
@@ -86,14 +83,11 @@ func GetUsername() string {
 }
 
 //GetEmail gets the current users username
-func GetEmail() string {
+func GetEmail(tokenString string) string {
 	client := &http.Client{}
 	url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
 	req, _ := http.NewRequest("GET", url, nil)
-	if token == nil {
-		return ""
-	}
-	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+tokenString)
 	//Check if token is still valid
 	response, err := client.Do(req)
 	if err != nil || response.Status != "200 OK" {
