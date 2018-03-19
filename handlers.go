@@ -3,7 +3,6 @@ package keycloak
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -44,8 +43,6 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			}
 			token = &pre
 		}
-		cooks := r.Cookies()
-		fmt.Printf("%v", cooks)
 		client := &http.Client{}
 		url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
 		req, _ := http.NewRequest("GET", url, nil)
@@ -152,7 +149,13 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	url := keycloakserver + "/auth/realms/" + realm + "/protocol/openid-connect/userinfo"
 	req, _ := http.NewRequest("GET", url, nil)
-	if token == nil {
+	cookie, err := r.Cookie("token")
+	if err == nil {
+		pre := oauth2.Token{
+			AccessToken: cookie.Value,
+		}
+		token = &pre
+	} else {
 		HandleLogin(w, r)
 		return
 	}
